@@ -1,0 +1,39 @@
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.yaml
+    container_name: mi-aplicacion-python
+    ports:
+      - "8080:5000"
+    volumes:
+      - ./src:/app
+    environment:
+      DB_HOST: db
+      DB_NAME: hola_db
+      DB_USER: hola_user
+      DB_PASSWORD: hola_pass
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    container_name: mi-mysql-python
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: hola_db
+      MYSQL_USER: hola_user
+      MYSQL_PASSWORD: hola_pass
+    volumes:
+      - datos_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  datos_mysql:
